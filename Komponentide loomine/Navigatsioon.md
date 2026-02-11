@@ -1,55 +1,95 @@
-# BlogiApp — toores Markdown dokumentatsioon
-## Navigation teekond: algusest kuni Samm 9 (koos vigade ja parandustega)
+# BlogiApp — Navigeerimine nullist (Compose)
+**Õppeversioon, samm-sammult, koos “miks” selgitustega**
+
+Allpool on terviklik **Markdown dokumentatsioon** nii, et saad alustada täiesti tühjast projektist ja ehitada üles sama lahenduse, mis sul Samm 9 lõpuks töötas.
 
 ---
 
-## 0) Lähteolukord
+## 0) Eesmärk ja lõpptulemus
 
-- Sul oli Android Studio Compose projekt, tühi algus (“Hello Android”).
-- Põhipackage: `com.example.blogiapp`.
-- Eesmärk: ehitada navigeerimine puhtalt, samm-sammult, õpetamiseks sobiva struktuuriga.
+Selle juhendi lõpuks on sul:
+
+- puhas navigeerimise struktuur
+- route’id ühes kohas (`AppDestinations`)
+- nav graph eraldi failis (`AppNavGraph`)
+- bottom bar eraldi UI failis (`AppBottomBar`)
+- bottom bari naviloogika eraldi klassis (`BottomBarNavigator`)
+- feature-põhine kaustastruktuur (`feature_home`, `feature_create`, `feature_profile`, `feature_navbar`)
 
 ---
 
-## 1) Kokkulepitud tööstiil
+## 1) Alusta tühjast Android Studio Compose projektist
 
-- Liigume väikeste sammudega.
-- Ei viska kogu arhitektuuri kohe peale.
-- Kasutame kommentaariplokke:
+Loo uus projekt:
+
+- **Template**: Empty Activity (Compose)
+- **Package name**: `com.example.blogiapp`
+- **Language**: Kotlin
+- **Min SDK**: sobiv sinu kursuse/eesmärgi järgi
+
+Kui projekt avatud, sul on tavaliselt:
+- `MainActivity.kt`
+- teema failid (`ui.theme`)
+
+---
+
+## 2) Vajalik dependency navigeerimiseks
+
+Ava `app/build.gradle.kts` ja kontrolli, et olemas oleks Navigation Compose dependency:
 
 ```kotlin
-/* KOMMENTAAR
-Mida see teeb?
-Miks see vajalik on?
-*/
+dependencies {
+    implementation("androidx.navigation:navigation-compose:2.8.0") // või uuem sobiv versioon
+}
 ```
 
-- Eesmärk oli: naviriba lõpuks eraldi, naviloogika eraldi, route’id ühes kohas.
+Seejärel:
+- **Sync Project with Gradle Files**
+- vajadusel **Rebuild Project**
 
 ---
 
-## 2) Samm 1 — `core.navigation` paketi loomine
+## 3) Lõppstruktuur (mida hakkame looma)
 
-### Kuhu kaust luua?
-- Android Studio puus:
-  - `app > kotlin+java > com.example.blogiapp`
-- Paremklõps `com.example.blogiapp` peal → **New > Package**.
+Lõpuks peaks `app/src/main/java/com/example/blogiapp` välja nägema nii:
 
-### Mis pakett luua?
-- `core.navigation`
-
-### Tulem
-- `com.example.blogiapp.core.navigation` olemas.
+```text
+com.example.blogiapp
+├─ core
+│  └─ navigation
+│     ├─ AppDestinations.kt
+│     └─ AppNavGraph.kt
+├─ feature_navbar
+│  ├─ logic
+│  │  └─ BottomBarNavigator.kt
+│  └─ ui
+│     └─ AppBottomBar.kt
+├─ feature_home
+│  └─ ui
+│     └─ HomeScreen.kt
+├─ feature_create
+│  └─ ui
+│     └─ CreateScreen.kt
+├─ feature_profile
+│  └─ ui
+│     └─ ProfileScreen.kt
+└─ MainActivity.kt
+```
 
 ---
 
-## 3) Samm 2 — `AppDestinations.kt` loomine
+## 4) Sammud täiesti tühjalt: kaustad ja failid
 
-### Kuhu fail luua?
-- `app > kotlin+java > com.example.blogiapp > core.navigation`
-- New > Kotlin Class/File → `AppDestinations.kt`
+## Samm 4.1 — Loo `core.navigation`
 
-### Kood
+Android Studio puus:
+
+- paremklõps `com.example.blogiapp`
+- **New > Package**
+- nimi: `core.navigation`
+
+Loo sinna fail: **AppDestinations.kt**
+
 ```kotlin
 package com.example.blogiapp.core.navigation
 
@@ -64,27 +104,12 @@ object AppDestinations {
 }
 ```
 
-### Sul tekkinud probleem
-`AppDestinations.kt` faili oli jäänud:
-- `@Composable`
-- `import androidx.compose.runtime.Composable`
-
-See tekitas vea, sest tegemist pole UI composable funktsiooniga.
-
-### Parandus
-- Eemalda `@Composable`
-- Eemalda Compose import
-- Jäta ainult `object AppDestinations`.
+⚠️ **Oluline**: siia faili **ei** käi `@Composable` ega Compose import.
 
 ---
 
-## 4) Samm 3 — `AppNavGraph.kt` loomine
+## Samm 4.2 — Loo `AppNavGraph.kt` samasse `core.navigation` paketti
 
-### Kuhu fail luua?
-- `app > kotlin+java > com.example.blogiapp > core.navigation`
-- New > Kotlin Class/File → `AppNavGraph.kt`
-
-### Kood (versioon, mida lõpuks kasutasid)
 ```kotlin
 package com.example.blogiapp.core.navigation
 
@@ -97,8 +122,8 @@ import com.example.blogiapp.feature_home.ui.HomeScreen
 import com.example.blogiapp.feature_profile.ui.ProfileScreen
 
 /* KOMMENTAAR
-NavGraph seob route'id eraldi screenidega.
-Navigation loogika on nüüd puhas ja eraldatud UI failidest.
+NavGraph seob route'id ekraanidega.
+startDestination määrab, mis avatakse esimesena.
 */
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -115,262 +140,16 @@ fun AppNavGraph(navController: NavHostController) {
 
 ---
 
-## 5) Samm 4 — `MainActivity` sisse lihtne navibaasi UI
+## Samm 4.3 — Loo feature ekraanide kaustad
 
-Alguses panime kõik samasse faili, et kiiresti tööle saada:
-- `Scaffold`
-- `SimpleBottomBar`
-- `AppNavGraph`
+Loo `com.example.blogiapp` alla järgmised paketid:
 
-### Näidiskood (vaheversioon)
-```kotlin
-@Composable
-fun AppEntry() {
-    val navController = rememberNavController()
-
-    Scaffold(
-        bottomBar = {
-            SimpleBottomBar()
-        }
-    ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            AppNavGraph(navController = navController)
-        }
-    }
-}
-```
-
----
-
-## 6) Samm 5 — callbackid naviriba nuppudele
-
-### Eesmärk
-Et `SimpleBottomBar` ei oleks “tühi nuppudega UI”, vaid saaks klikid parentilt kaasa.
-
-### `SimpleBottomBar` signatuur
-```kotlin
-@Composable
-fun SimpleBottomBar(
-    onHomeClick: () -> Unit,
-    onCreateClick: () -> Unit,
-    onProfileClick: () -> Unit
-) { ... }
-```
-
-### `AppEntry` kutse
-```kotlin
-SimpleBottomBar(
-    onHomeClick = {
-        navController.navigate(AppDestinations.HOME) {
-            launchSingleTop = true
-        }
-    },
-    onCreateClick = {
-        navController.navigate(AppDestinations.CREATE) {
-            launchSingleTop = true
-        }
-    },
-    onProfileClick = {
-        navController.navigate(AppDestinations.PROFILE) {
-            launchSingleTop = true
-        }
-    }
-)
-```
-
-### Sul tekkinud probleem
-`No parameter with name 'onProfileClick' found.`
-
-### Põhjus
-`SimpleBottomBar` funktsioonis puudus `onProfileClick` parameeter või signatuur ei klappinud.
-
-### Parandus
-Funktsiooni signatuur viia täpselt kooskõlla kutsega.
-
----
-
-## 7) Samm 6 — `Unit` vs `unit` probleem
-
-### Sul tekkinud probleem
-`Unresolved reference 'unit'`
-
-### Põhjus
-Kirjutati väikese tähega `unit`.
-
-### Parandus
-Kotlinis peab olema:
-```kotlin
-() -> Unit
-```
-mitte
-```kotlin
-() -> unit
-```
-
----
-
-## 8) Samm 7 — `AppDestinations` unresolved reference
-
-### Sul tekkinud probleem
-`Unresolved reference 'AppDestinations'`
-
-### Kontrollnimekiri
-1. `MainActivity` (või AppRoot faili) import:
-```kotlin
-import com.example.blogiapp.core.navigation.AppDestinations
-```
-
-2. `AppDestinations.kt` package peab olema:
-```kotlin
-package com.example.blogiapp.core.navigation
-```
-
-3. Objekti nimi peab klappima:
-```kotlin
-object AppDestinations
-```
-
----
-
-## 9) Samm 8 — aktiivse tabi loogika (`selected`)
-
-### Eesmärk
-Bottom bar näitaks, milline tab on aktiivne.
-
-### Vajalikud importid
-```kotlin
-import androidx.compose.runtime.getValue
-import androidx.navigation.compose.currentBackStackEntryAsState
-```
-
-### `AppEntry` sees
-```kotlin
-val backStackEntry by navController.currentBackStackEntryAsState()
-val currentRoute = backStackEntry?.destination?.route
-```
-
-### `SimpleBottomBar` signatuur
-```kotlin
-fun SimpleBottomBar(
-    currentRoute: String?,
-    onHomeClick: () -> Unit,
-    onCreateClick: () -> Unit,
-    onProfileClick: () -> Unit
-)
-```
-
-### `selected` read
-```kotlin
-selected = currentRoute == AppDestinations.HOME
-selected = currentRoute == AppDestinations.CREATE
-selected = currentRoute == AppDestinations.PROFILE
-```
-
----
-
-## 10) Samm 9 — miks ekraan ei vahetanud, kuidas lahendasime
-
-Sul oli olukord, kus klikid ei andnud tulemust.
-
-### Mis osutus praktiliseks kontrolliks
-- Tegime callbackide kontrolli lihtsa lähenemisega.
-- Peamine probleem oli callbackide/sulgude/signatuuri ebakõla.
-
-### Sul tekkinud konkreetne viga
-- Lisasulg (`}`) callbackis katkestas struktuuri.
-- Tulemuseks callback ei töötanud korrektselt.
-
-### Õige `Scaffold(bottomBar = ...)` plokk
-```kotlin
-Scaffold(
-    bottomBar = {
-        SimpleBottomBar(
-            currentRoute = currentRoute,
-            onHomeClick = {
-                navController.navigate(AppDestinations.HOME) {
-                    launchSingleTop = true
-                }
-            },
-            onCreateClick = {
-                navController.navigate(AppDestinations.CREATE) {
-                    launchSingleTop = true
-                }
-            },
-            onProfileClick = {
-                navController.navigate(AppDestinations.PROFILE) {
-                    launchSingleTop = true
-                }
-            }
-        )
-    }
-) { innerPadding ->
-    Box(modifier = Modifier.padding(innerPadding)) {
-        AppNavGraph(navController = navController)
-    }
-}
-```
-
----
-
-## 11) Logcat kontroll (tegime ka selle läbi)
-
-Sa küsisid, kuhu `NAV_TEST` kirjutada.
-
-### Vastus
-`NAV_TEST` on logi tag, mis läheb koodi sisse:
-```kotlin
-import android.util.Log
-
-Log.d("NAV_TEST", "CREATE CLICK")
-```
-
-### Kust näha?
-- Android Studio → **Logcat** aken
-- Filter: app process `com.example.blogiapp`
-- Otsing: `NAV_TEST`
-
-### Sul oli segadus
-Logcatis oli süsteemi warning, mitte sinu logi.
-
-### Järeldus
-Kui `NAV_TEST` ei ilmu, callback ei käivitu või kood pole selles harus.
-
----
-
-## 12) Importide teema (sinu küsimus: kas kirjutada enne või pärast)
-
-### Soovitus
-Kõige mõistlikum Android Studios:
-1. kirjuta kood,
-2. siis lase IDE-l importida (Alt+Enter),
-3. vajadusel Optimize Imports.
-
-### Sul tekkinud probleem
-Shortcut `Optimize Imports` ei töötanud.
-
-### Parandus
-- kasuta `Alt+Enter` punase sümboli peal
-- vajadusel import käsitsi
-- Sync/Rebuild, kui IDE jääb toppama
-
----
-
-## 13) Feature-kaustadesse tõstmine (navigation puhastus)
-
-Hiljem tõstsime ekraanid eraldi feature-kaustadesse.
-
-### Kuhu kaustad luua?
-- `app > kotlin+java > com.example.blogiapp`
-- New > Package
-
-Loodud paketid:
 - `feature_home.ui`
 - `feature_create.ui`
 - `feature_profile.ui`
 
-### Failid ja kood
+### HomeScreen.kt
 
-#### `feature_home/ui/HomeScreen.kt`
 ```kotlin
 package com.example.blogiapp.feature_home.ui
 
@@ -386,7 +165,8 @@ fun HomeScreen() {
 }
 ```
 
-#### `feature_create/ui/CreateScreen.kt`
+### CreateScreen.kt
+
 ```kotlin
 package com.example.blogiapp.feature_create.ui
 
@@ -402,7 +182,8 @@ fun CreateScreen() {
 }
 ```
 
-#### `feature_profile/ui/ProfileScreen.kt`
+### ProfileScreen.kt
+
 ```kotlin
 package com.example.blogiapp.feature_profile.ui
 
@@ -420,16 +201,13 @@ fun ProfileScreen() {
 
 ---
 
-## 14) Navbari eraldamine oma kausta
+## Samm 4.4 — Loo bottom bari UI kaust: `feature_navbar.ui`
 
-### Kuhu kaust luua?
-- `app > kotlin+java > com.example.blogiapp`
-- New > Package: `feature_navbar.ui`
+Loo fail: `AppBottomBar.kt`
 
-### Fail
-- `feature_navbar/ui/AppBottomBar.kt`
+> See on koht, kus sinu küsimus oli väga õige: **mis on SimpleBottomBar/AppBottomBar ja kuhu see läheb?**  
+> Vastus: see on **UI komponent**, mis läheb `feature_navbar.ui` paketti.
 
-### Kood (ilma forEach-ta, nagu soovisid)
 ```kotlin
 package com.example.blogiapp.feature_navbar.ui
 
@@ -440,8 +218,8 @@ import androidx.compose.runtime.Composable
 import com.example.blogiapp.core.navigation.AppDestinations
 
 /* KOMMENTAAR
-Navbar teadlikult ilma forEach'ita.
-Iga nupp on eraldi kirjas, et algajal oleks lihtsam lugeda.
+Bottom bar on eraldi UI komponent.
+Ta EI navigeeri ise, vaid saab callbackid parentilt.
 */
 @Composable
 fun AppBottomBar(
@@ -477,16 +255,10 @@ fun AppBottomBar(
 
 ---
 
-## 15) Samm 9 lõpetamine — navigeerimisloogika eraldi klassi (`feature_navbar.logic`)
+## Samm 4.5 — Loo bottom bari loogika kaust: `feature_navbar.logic`
 
-### Kuhu kaust luua?
-- `app > kotlin+java > com.example.blogiapp`
-- New > Package: `feature_navbar.logic`
+Loo fail: `BottomBarNavigator.kt`
 
-### Fail
-- `feature_navbar/logic/BottomBarNavigator.kt`
-
-### Kood
 ```kotlin
 package com.example.blogiapp.feature_navbar.logic
 
@@ -495,7 +267,7 @@ import com.example.blogiapp.core.navigation.AppDestinations
 
 /* KOMMENTAAR
 Navigeerimise loogika on eraldi klassis.
-UI jääb puhtamaks.
+UI jääb puhtamaks ja testitavamaks.
 */
 class BottomBarNavigator(
     private val navController: NavHostController
@@ -520,82 +292,11 @@ class BottomBarNavigator(
 }
 ```
 
-### AppRoot/AppEntry kasutus
-```kotlin
-val navigator = remember(navController) { BottomBarNavigator(navController) }
-
-AppBottomBar(
-    currentRoute = currentRoute,
-    onHomeClick = { navigator.goHome() },
-    onCreateClick = { navigator.goCreate() },
-    onProfileClick = { navigator.goProfile() }
-)
-```
-
 ---
 
-## 16) Sinu konkreetsed probleemid ja lahendused (koond)
+## Samm 4.6 — Ühenda kõik `MainActivity.kt`-s
 
-1. **`AppNavGraph` unresolved reference**
-   - Kontrolli importi ja package’i.
-   - Veendu, et fail on `main` sourceSetis, mitte `test/androidTest`.
-
-2. **`No parameter with name 'onProfileClick' found`**
-   - `SimpleBottomBar` signatuur ei klappinud kutsega.
-   - Lisa puuduv parameeter.
-
-3. **`Unresolved reference 'unit'`**
-   - Kotlinis `Unit` (suur U), mitte `unit`.
-
-4. **`AppDestinations` unresolved reference**
-   - vale/missing import
-   - vale objekti nimi
-   - vale package `AppDestinations.kt` failis
-
-5. **Nav ei vaheta ekraani**
-   - kontrolli, et `onClick = onCreateClick` jne (mitte `{ }`)
-   - kontrolli sulgude tasakaalu callbackides
-   - `AppNavGraph` peab saama sama `navController` eksemplari
-
-6. **Logcat segadus**
-   - `NAV_TEST` tuleb kirjutada `Log.d("NAV_TEST", "...")` sisse
-   - Logcat filter: protsess `com.example.blogiapp`, query `NAV_TEST`
-
-7. **Optimize Imports shortcut ei toiminud**
-   - kasuta `Alt+Enter` quick fix
-   - vajadusel import käsitsi
-   - Sync/Rebuild
-
----
-
-## 17) Soovitatud kaustapuu pärast Samm 9
-
-```text
-app/src/main/java/com/example/blogiapp
-├─ core
-│  └─ navigation
-│     ├─ AppDestinations.kt
-│     └─ AppNavGraph.kt
-├─ feature_navbar
-│  ├─ logic
-│  │  └─ BottomBarNavigator.kt
-│  └─ ui
-│     └─ AppBottomBar.kt
-├─ feature_home
-│  └─ ui
-│     └─ HomeScreen.kt
-├─ feature_create
-│  └─ ui
-│     └─ CreateScreen.kt
-├─ feature_profile
-│  └─ ui
-│     └─ ProfileScreen.kt
-└─ MainActivity.kt
-```
-
----
-
-## 18) Täielik tööversiooni näide (Samm 9 tasemel)
+Asenda `MainActivity.kt` sisu (või kohanda) järgmisega:
 
 ```kotlin
 package com.example.blogiapp
@@ -632,10 +333,10 @@ class MainActivity : ComponentActivity() {
 
 /* KOMMENTAAR
 AppEntry seob kokku:
-- navController
-- navigator (eraldi loogikaklass)
-- AppBottomBar
-- AppNavGraph
+1) navController
+2) navigator (eraldi loogikaklass)
+3) AppBottomBar (UI)
+4) AppNavGraph (route -> screen seos)
 */
 @Composable
 fun AppEntry() {
@@ -664,16 +365,124 @@ fun AppEntry() {
 
 ---
 
-## 19) Märkus ikoonide kohta (järgmine samm pärast Samm 9)
+## 5) “Mis asi on mis?” — kiire seletus
 
-Kui lisad Material ikoonid ja version-catalog alias ei tööta, kasuta otse dependency stringi:
+- **AppDestinations**  
+  Route stringide keskne koht (`"home"`, `"create"`, `"profile"`)
+
+- **AppNavGraph**  
+  Seob route’id Composable ekraanidega
+
+- **Home/Create/ProfileScreen**  
+  Feature-ekraanid (reaalne UI tuleb hiljem siia sisse)
+
+- **AppBottomBar**  
+  Alumine naviriba UI; ei halda ise navigeerimise reegleid, ainult näitab nuppe ja kutsub callbacke
+
+- **BottomBarNavigator**  
+  Navigeerimise loogika klass (`goHome()`, `goCreate()`, `goProfile()`)
+
+- **AppEntry**  
+  “Koostefail”: ühendab navController + navGraph + bottombar
+
+---
+
+## 6) Millal uusi kaustu luua? (praktiline reegel)
+
+Kasuta seda lihtsat reeglit:
+
+1. **Kui midagi on globaalne app’iülene reegel** → `core`  
+   Näide: `core.navigation`
+
+2. **Kui midagi kuulub ühe konkreetse funktsiooni alla** → `feature_xxx`  
+   Näide: `feature_profile.ui`
+
+3. **Kui samas feature’s on nii UI kui loogika** → jaga `ui` ja `logic` alamkaustaks  
+   Näide: `feature_navbar.ui` + `feature_navbar.logic`
+
+---
+
+## 7) Levinud vead ja kiire parandus
+
+## Viga: `No parameter with name 'onProfileClick' found`
+
+Põhjus: funktsiooni signatuur ja väljakutse ei klapi.  
+Parandus: kontrolli, et `AppBottomBar(...)` sisaldab täpselt samu parameetreid.
+
+---
+
+## Viga: `Unresolved reference 'unit'`
+
+Põhjus: kirjutasid `unit` väikese tähega.  
+Parandus: Kotlinis alati `Unit` (suur U).
+
+---
+
+## Viga: `Unresolved reference 'AppDestinations'`
+
+Kontrolli:
+
+- import olemas:
+  ```kotlin
+  import com.example.blogiapp.core.navigation.AppDestinations
+  ```
+- package AppDestinations failis:
+  ```kotlin
+  package com.example.blogiapp.core.navigation
+  ```
+- objekti nimi täpselt `AppDestinations`
+
+---
+
+## Viga: klikid ei vaheta ekraani
+
+Kontrolli järjest:
+
+1. `onClick = onCreateClick` (mitte tühi lambda `{ }`)
+2. sulgude tasakaal callbackides
+3. `AppNavGraph` ja `AppBottomBar` kasutavad **sama** `navController` instantsi läbi `AppEntry`
+
+---
+
+## 8) Logcat debug (kui nav ei tööta)
+
+Lisa ajutiselt:
+
+```kotlin
+import android.util.Log
+Log.d("NAV_TEST", "CREATE CLICK")
+```
+
+Vaata Android Studio Logcat:
+
+- process: `com.example.blogiapp`
+- otsing: `NAV_TEST`
+
+Kui logi ei ilmu, callback ei käivitu või sa ei jõua selle koodiharuni.
+
+---
+
+## 9) Ikoonid (valikuline järgmine samm)
+
+Kui tahad päris Material ikoone bottombaris:
 
 ```kotlin
 implementation("androidx.compose.material:material-icons-extended")
 ```
 
 Pärast:
-- Sync Project with Gradle Files
-- Rebuild Project
+- Sync
+- Rebuild
 
 ---
+
+## 10) Kokkuvõte õppija vaates
+
+Sinu navitektuur on nüüd kihiline ja loetav:
+
+- **core.navigation** = route + graph
+- **feature_xxx.ui** = ekraanid
+- **feature_navbar.ui** = bottom bar UI
+- **feature_navbar.logic** = bottom bari navireeglid
+- **MainActivity/AppEntry** = kogu süsteemi kokkupanek
+
