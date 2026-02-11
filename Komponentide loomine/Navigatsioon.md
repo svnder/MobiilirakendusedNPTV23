@@ -1,31 +1,17 @@
-# BlogiApp — Navigeerimine nullist (Compose)
-**Õppeversioon, samm-sammult, koos “miks” selgitustega**
+# Navigatsiooni loomine
+## Näidis kuidas luua lihtsat funktsioneerivat navigatsiooni riba
 
-Allpool on terviklik **Markdown dokumentatsioon** nii, et saad alustada täiesti tühjast projektist ja ehitada üles sama lahenduse, mis sul Samm 9 lõpuks töötas.
 
----
-
-## 0) Eesmärk ja lõpptulemus
-
-Selle juhendi lõpuks on sul:
-
-- puhas navigeerimise struktuur
-- route’id ühes kohas (`AppDestinations`)
-- nav graph eraldi failis (`AppNavGraph`)
-- bottom bar eraldi UI failis (`AppBottomBar`)
-- bottom bari naviloogika eraldi klassis (`BottomBarNavigator`)
-- feature-põhine kaustastruktuur (`feature_home`, `feature_create`, `feature_profile`, `feature_navbar`)
-
----
-
-## 1) Alusta tühjast Android Studio Compose projektist
+### 1) Alusta tühjast Android Studio Compose projektist
 
 Loo uus projekt:
 
 - **Template**: Empty Activity (Compose)
 - **Package name**: `com.example.blogiapp`
 - **Language**: Kotlin
-- **Min SDK**: sobiv sinu kursuse/eesmärgi järgi
+- **Min SDK**: näiteks SDK21
+
+- **NB! blogiapp on näidis rakendus, kui teed isikliku tühja projekti siis läheb projekti nimi**
 
 Kui projekt avatud, sul on tavaliselt:
 - `MainActivity.kt`
@@ -103,8 +89,49 @@ object AppDestinations {
     const val PROFILE = "profile"
 }
 ```
+## Samm 4.1.1 —  `object` vs `class` Kotlinis
 
-⚠️ **Oluline**: siia faili **ei** käi `@Composable` ega Compose import.
+### Väga primitiivne näide:
+
+- `object` on nagu üks karp
+- `class` on karbi vorm, millest saab teha mitu karpi
+
+## `object` näidis
+
+```
+object AppDestinations {
+    const val HOME = "home"
+}
+```
+
+## Kasutamine
+
+```
+AppDestination.HOME
+```
+### Ehk ei looda uut asja
+
+## `class` näidis
+
+```
+class Dog(val name: String)
+```
+
+## Kasutamine
+
+```
+val d1 = Dog("Muri")
+val d2 = Dog("Pontu")
+
+```
+### Kaks eri objekti
+
+## Millal kumba valida?
+
+- Kui vaja üksainus koht (nt konstandid) `object`
+- Kui vaja mitu eri asja (nt mitu kasutajat/koera/navigatorit) `class`
+
+
 
 ---
 
@@ -203,10 +230,8 @@ fun ProfileScreen() {
 
 ## Samm 4.4 — Loo bottom bari UI kaust: `feature_navbar.ui`
 
-Loo fail: `AppBottomBar.kt`
+Loo fail: `AppBottomBar.kt` `feature_navbar.ui`
 
-> See on koht, kus sinu küsimus oli väga õige: **mis on SimpleBottomBar/AppBottomBar ja kuhu see läheb?**  
-> Vastus: see on **UI komponent**, mis läheb `feature_navbar.ui` paketti.
 
 ```kotlin
 package com.example.blogiapp.feature_navbar.ui
@@ -299,7 +324,7 @@ class BottomBarNavigator(
 Asenda `MainActivity.kt` sisu (või kohanda) järgmisega:
 
 ```kotlin
-package com.example.blogiapp
+package com.example.blogi
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -363,9 +388,8 @@ fun AppEntry() {
 }
 ```
 
----
 
-## 5) “Mis asi on mis?” — kiire seletus
+## 5) Mis asi on mis?
 
 - **AppDestinations**  
   Route stringide keskne koht (`"home"`, `"create"`, `"profile"`)
@@ -374,10 +398,10 @@ fun AppEntry() {
   Seob route’id Composable ekraanidega
 
 - **Home/Create/ProfileScreen**  
-  Feature-ekraanid (reaalne UI tuleb hiljem siia sisse)
+  Feature-ekraanid ehk reaalse UI jaoks
 
 - **AppBottomBar**  
-  Alumine naviriba UI; ei halda ise navigeerimise reegleid, ainult näitab nuppe ja kutsub callbacke
+  Alumine naviriba UI ei halda ise navigeerimise reegleid, ainult näitab nuppe ja kutsub callbacke
 
 - **BottomBarNavigator**  
   Navigeerimise loogika klass (`goHome()`, `goCreate()`, `goProfile()`)
@@ -385,13 +409,11 @@ fun AppEntry() {
 - **AppEntry**  
   “Koostefail”: ühendab navController + navGraph + bottombar
 
----
 
-## 6) Millal uusi kaustu luua? (praktiline reegel)
+## 6) Millal teha uus kaust?
 
-Kasuta seda lihtsat reeglit:
 
-1. **Kui midagi on globaalne app’iülene reegel** → `core`  
+1. **Kui midagi on globaalne Äppi reegel** läheb `core`  
    Näide: `core.navigation`
 
 2. **Kui midagi kuulub ühe konkreetse funktsiooni alla** → `feature_xxx`  
@@ -400,23 +422,7 @@ Kasuta seda lihtsat reeglit:
 3. **Kui samas feature’s on nii UI kui loogika** → jaga `ui` ja `logic` alamkaustaks  
    Näide: `feature_navbar.ui` + `feature_navbar.logic`
 
----
 
-## 7) Levinud vead ja kiire parandus
-
-## Viga: `No parameter with name 'onProfileClick' found`
-
-Põhjus: funktsiooni signatuur ja väljakutse ei klapi.  
-Parandus: kontrolli, et `AppBottomBar(...)` sisaldab täpselt samu parameetreid.
-
----
-
-## Viga: `Unresolved reference 'unit'`
-
-Põhjus: kirjutasid `unit` väikese tähega.  
-Parandus: Kotlinis alati `Unit` (suur U).
-
----
 
 ## Viga: `Unresolved reference 'AppDestinations'`
 
@@ -432,17 +438,6 @@ Kontrolli:
   ```
 - objekti nimi täpselt `AppDestinations`
 
----
-
-## Viga: klikid ei vaheta ekraani
-
-Kontrolli järjest:
-
-1. `onClick = onCreateClick` (mitte tühi lambda `{ }`)
-2. sulgude tasakaal callbackides
-3. `AppNavGraph` ja `AppBottomBar` kasutavad **sama** `navController` instantsi läbi `AppEntry`
-
----
 
 ## 8) Logcat debug (kui nav ei tööta)
 
@@ -462,7 +457,7 @@ Kui logi ei ilmu, callback ei käivitu või sa ei jõua selle koodiharuni.
 
 ---
 
-## 9) Ikoonid (valikuline järgmine samm)
+## 9) Ikoonid navigatsioonile
 
 Kui tahad päris Material ikoone bottombaris:
 
@@ -474,15 +469,40 @@ Pärast:
 - Sync
 - Rebuild
 
----
+### Kontrolli oma `MainActivity.kt` faili
 
-## 10) Kokkuvõte õppija vaates
+```
+@Composable
+fun AppBottomBar(
+    currentRoute: String?,
+    onHomeClick: () -> Unit,
+    onCreateClick: () -> Unit,
+    onProfileClick: () -> Unit
+) {
+    NavigationBar {
+        NavigationBarItem(
+            selected = currentRoute == AppDestinations.HOME,
+            onClick = onHomeClick,
+            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
+            label = { Text("Home") }
+        )
 
-Sinu navitektuur on nüüd kihiline ja loetav:
+        NavigationBarItem(
+            selected = currentRoute == AppDestinations.CREATE,
+            onClick = onCreateClick,
+            icon = { Icon(Icons.Filled.Add, contentDescription = "Create") },
+            label = { Text("Create") }
+        )
 
-- **core.navigation** = route + graph
-- **feature_xxx.ui** = ekraanid
-- **feature_navbar.ui** = bottom bar UI
-- **feature_navbar.logic** = bottom bari navireeglid
-- **MainActivity/AppEntry** = kogu süsteemi kokkupanek
+        NavigationBarItem(
+            selected = currentRoute == AppDestinations.PROFILE,
+            onClick = onProfileClick,
+            icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
+            label = { Text("Profile") }
+        )
+    }
+}
+```
+
+
 
