@@ -10,11 +10,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.blogi.ui.components.AppPrimaryButton
 
 @Composable
 fun ProfileScreen(
     darkTheme: Boolean,
-    onDarkThemeChange: (Boolean) -> Unit
+    onDarkThemeChange: (Boolean) -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -36,6 +38,11 @@ fun ProfileScreen(
         Switch(
             checked = darkTheme,
             onCheckedChange = onDarkThemeChange
+        )
+
+        AppPrimaryButton(
+            text = "Logi välja",
+            onClick = onLogoutClick
         )
     }
 }

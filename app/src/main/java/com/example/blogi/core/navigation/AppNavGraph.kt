@@ -17,6 +17,7 @@ fun AppNavGraph(
     navController: NavHostController,
     darkTheme: Boolean,
     onDarkThemeChange: (Boolean) -> Unit,
+    onLogoutClick: () -> Unit,
     blogViewModel: BlogViewModel
 
     ) {
@@ -57,7 +58,9 @@ fun AppNavGraph(
         composable(AppDestinations.PROFILE) {
             ProfileScreen(
                 darkTheme = darkTheme,
-                onDarkThemeChange = onDarkThemeChange
+                onDarkThemeChange = onDarkThemeChange,
+                onLogoutClick = onLogoutClick
+
             )
         }
     }
