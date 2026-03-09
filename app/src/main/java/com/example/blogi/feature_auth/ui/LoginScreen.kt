@@ -48,7 +48,8 @@ fun LoginScreen(
         AppTextField(
             value = uiState.loginPassword,
             onValueChange = onPasswordChange,
-            placeholder = "Parool"
+            placeholder = "Parool",
+            isPassword = true
         )
 
         uiState.errorMessage?.let {

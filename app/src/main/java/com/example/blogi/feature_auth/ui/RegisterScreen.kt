@@ -48,7 +48,8 @@ fun RegisterScreen(
         AppTextField(
             value = uiState.registerPassword,
             onValueChange = onPasswordChange,
-            placeholder = "Parool"
+            placeholder = "Parool",
+            isPassword = true
         )
 
         AppTextField(
