@@ -192,14 +192,6 @@ Kontrolli:
 
 ---
 
-## 7) Kokkuvõte
-
-Samm on valmis:
-- Login route on lisatud
-- LoginScreen on eraldi feature kaustas
-- NavGraph avab esmalt Login vaate
-- Edasi liigub Home’i kontrollitud callbacki kaudu
-
 Järgmine loogiline samm:
 - lisada `LoginViewModel` ja fake auth flow (ilma Firebase’ita),
 - seejärel asendada fake auth päris backend/Firebase autentimisega.
