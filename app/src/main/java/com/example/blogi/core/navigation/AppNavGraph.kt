@@ -1,33 +1,34 @@
 package com.example.blogi.core.navigation
 
+import AppDestinations
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.blogi.feature_blog.logic.BlogViewModel
+import com.example.blogi.feature_home.logic.ApiDemoViewModel
+import com.example.blogi.feature_home.ui.ApiDemoScreen
+import com.example.blogi.feature_home.ui.HomeScreen
 import com.example.blogi.feature_postdetail.ui.PostDetailScreen
 import com.example.blogi.feature_profile.ui.ProfileScreen
-import com.example.blogiapp.core.navigation.AppDestinations
 import com.example.blogiapp.feature_create.ui.CreateScreen
-import com.example.blogiapp.feature_home.ui.HomeScreen
-
 
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
     darkTheme: Boolean,
     onDarkThemeChange: (Boolean) -> Unit,
-    onLogoutClick: () -> Unit,
-    blogViewModel: BlogViewModel
-
-    ) {
+    blogViewModel: BlogViewModel,
+    onLogoutClick: () -> Unit
+) {
     NavHost(
         navController = navController,
         startDestination = AppDestinations.HOME
     ) {
         composable(AppDestinations.HOME) {
             HomeScreen(
-                posts = blogViewModel.posts,
+                blogViewModel = blogViewModel,
                 onPostClick = { postId ->
                     navController.navigate(AppDestinations.postDetailRoute(postId))
                 }
@@ -37,13 +38,27 @@ fun AppNavGraph(
         composable(AppDestinations.CREATE) {
             CreateScreen(
                 onSavePost = { title, content ->
-                    blogViewModel.addPost(title, content)
-                    navController.navigate(AppDestinations.HOME) {
-                        launchSingleTop = true
-                    }
+                    blogViewModel.addPost(
+                        title = title,
+                        content = content,
+                        onSuccess = {
+                            navController.navigate(AppDestinations.HOME) {
+                                popUpTo(AppDestinations.HOME) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onError = {
+                        }
+                    )
                 }
             )
         }
+
+        composable(AppDestinations.API_DEMO) {
+            val apiDemoViewModel: ApiDemoViewModel = viewModel()
+            ApiDemoScreen(viewModel = apiDemoViewModel)
+        }
+
         composable(AppDestinations.POST_DETAIL) { backStackEntry ->
             val postId = backStackEntry.arguments
                 ?.getString("postId")
@@ -54,13 +69,14 @@ fun AppNavGraph(
             PostDetailScreen(post = post)
         }
 
-
         composable(AppDestinations.PROFILE) {
             ProfileScreen(
                 darkTheme = darkTheme,
                 onDarkThemeChange = onDarkThemeChange,
-                onLogoutClick = onLogoutClick
-
+                onLogoutClick = onLogoutClick,
+                onApiDemoClick = {
+                    navController.navigate(AppDestinations.API_DEMO)
+                }
             )
         }
     }

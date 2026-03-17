@@ -25,6 +25,11 @@ import com.example.blogi.core.settings.ThemePreferences
 import com.example.blogi.feature_auth.logic.AuthViewModel
 import com.example.blogi.feature_auth.ui.AuthScreen
 import com.example.blogi.feature_blog.logic.BlogViewModel
+import com.example.blogi.feature_home.logic.ApiDemoViewModel
+
+// LISATUD OSA: API demo ViewModel import
+
+
 import com.example.blogi.ui.theme.BlogiTheme
 import com.example.blogiapp.feature_navbar.logic.BottomBarNavigator
 import com.example.blogiapp.feature_navbar.ui.AppBottomBar
@@ -92,7 +97,11 @@ fun AppEntry(
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
+
     val blogViewModel: BlogViewModel = viewModel()
+
+    // LISATUD OSA: eraldi ViewModel API testandmete jaoks
+
 
     Scaffold(
         bottomBar = {
@@ -110,6 +119,10 @@ fun AppEntry(
                 darkTheme = darkTheme,
                 onDarkThemeChange = onDarkThemeChange,
                 blogViewModel = blogViewModel,
+
+                // LISATUD OSA: anna API demo ViewModel nav graphile edasi
+
+
                 onLogoutClick = onLogoutClick
             )
         }

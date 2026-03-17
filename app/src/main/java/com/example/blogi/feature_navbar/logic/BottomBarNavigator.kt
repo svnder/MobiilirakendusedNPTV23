@@ -1,7 +1,7 @@
 package com.example.blogiapp.feature_navbar.logic
 
+import AppDestinations
 import androidx.navigation.NavHostController
-import com.example.blogiapp.core.navigation.AppDestinations
 
 /* KOMMENTAAR
 Navigeerimise loogika on eraldi klassis.

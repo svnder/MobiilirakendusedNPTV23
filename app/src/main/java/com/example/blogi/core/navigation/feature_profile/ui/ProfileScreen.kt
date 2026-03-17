@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -16,7 +17,8 @@ import com.example.blogi.ui.components.AppPrimaryButton
 fun ProfileScreen(
     darkTheme: Boolean,
     onDarkThemeChange: (Boolean) -> Unit,
-    onLogoutClick: () -> Unit
+    onLogoutClick: () -> Unit,
+    onApiDemoClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -44,5 +46,8 @@ fun ProfileScreen(
             text = "Logi välja",
             onClick = onLogoutClick
         )
+        Button(onClick = onApiDemoClick) {
+            Text("Ava API demo")
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.blogiapp.feature_navbar.ui
 
+import AppDestinations
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
@@ -9,7 +10,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.example.blogiapp.core.navigation.AppDestinations
 
 /* KOMMENTAAR
 Bottom bar on eraldi UI komponent.
